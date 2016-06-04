@@ -9,6 +9,10 @@
 
 namespace Darkenery\Bot;
 
+use Darkenery\Bot\Types\Message;
+use Darkenery\Bot\Types\User;
+use Darkenery\Bot\Types\Chat;
+
 
 
 class Bot
@@ -45,9 +49,6 @@ class Bot
         }
 
         self::executeCurl($options);
-
-
-
     }
 
     public function executeCurl(array $options)
@@ -55,7 +56,6 @@ class Bot
         curl_setopt_array($this->curl, $options);
         print_r(curl_exec($this->curl));
     }
-
 
     public function sendMessage($chatId,
                                 $text,
@@ -76,8 +76,51 @@ class Bot
         ]);
     }
 
+    public function sendPhoto($chatId,
+                              $photo,
+                              $caption = null,
+                              $disableNotification = false,
+                              $replyToMessageId = null,
+                              $replyMarkup = null )
+    {
+        $this->callCurl('sendPhoto', [
+            'chat_id' => $chatId,
+            'photo' => new \CURLFile(realpath($photo)),
+            'caption' => $caption,
+            'disable_notification' => $disableNotification,
+            'reply_to_message_if' => $replyToMessageId,
+            'reply_markup' => $replyMarkup
+        ]);
+        curl_setopt($this->curl, CURLOPT_HTTPHEADER, array(
+            "Content-Type:multipart/form-data"
+        ));
+    }
 
+    public function sendVoice($chatId,
+                              $voice,
+                              $duration = null,
+                              $disableNotification = false,
+                              $replyToMessageId = null,
+                              $replyMarkup = null)
+    {
+        $this->callCurl('sendVoice', [
+            'chat_id' => $chatId,
+            'voice' => new \CURLFile(realpath($voice)),
+            'duration' => $duration,
+            'disable_notification' => $disableNotification,
+            'reply_to_message_id' => $replyToMessageId,
+            'reply_markup' => $replyMarkup
+        ]);
+    }
 
+    public function parseUpdate()
+    {
 
+    }
+
+    public function getUpdate()
+    {
+        return json_decode(file_get_contents("php://input"));
+    }
 
 }
